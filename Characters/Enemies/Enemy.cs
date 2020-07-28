@@ -8,7 +8,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected int hp;
     [SerializeField] protected float speed;
     [SerializeField] protected Transform pointA, pointB;
-    [SerializeField] protected GameObject shot;
+    [SerializeField] protected GameObject enemyShotPrefab;
 
     protected Vector3 target;
     protected Animator anim;
@@ -21,7 +21,7 @@ public abstract class Enemy : MonoBehaviour
     public virtual void Init()
     {
         anim = GetComponentInChildren<Animator>();
-        sr = GetComponentInChildren<SpriteRenderer>();
+        
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
@@ -85,7 +85,12 @@ public abstract class Enemy : MonoBehaviour
 
     public void Attack()
     {
-        Instantiate(shot, transform.position, Quaternion.identity);
+        GameObject shot = Instantiate(enemyShotPrefab, transform.position, Quaternion.identity);
+
+        //if (sr.flipX)
+        //{
+        //    shot.transform.Translate
+        //}
     }
 
     public virtual void Update()

@@ -13,6 +13,8 @@ public class SentinelTitanium : Enemy, IDamageable
         health = base.hp;
     }
 
+    
+
     public override void Update()
     {
         

@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour, IDamageable
+public class Player : Character, IDamageable
 {
 
 
     private Rigidbody2D rb;
-    [SerializeField] private float jumpforce;
+    
+
     private bool resetjump = false;
     private bool grounded = false;
-    [SerializeField] private float movespeed;
-    private PlayerAnimation pa;
-    private SpriteRenderer sr;
+    
+
+    [SerializeField] private float jumpForce;
+    
+    
+    
     
 
     public int health { get; set; }
@@ -20,18 +24,20 @@ public class Player : MonoBehaviour, IDamageable
     
     void Start()
     {
+        Init();
         rb = GetComponent<Rigidbody2D>();
-        pa = GetComponent<PlayerAnimation>();
-        sr = GetComponentInChildren<SpriteRenderer>();
-        
-
-        jumpforce = 14f;
-        movespeed = 8f;
+        facingRight = true;
+        jumpForce = 14f;
+        moveSpeed = 8f;
     }
     
     void Update()
     {
         Movement();
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            anim.SetTrigger("shoot");
+        }
     }
 
     //Não está sendo chamado
@@ -58,31 +64,34 @@ public class Player : MonoBehaviour, IDamageable
         float move = Input.GetAxisRaw("Horizontal");
         grounded = IsGrounded();
 
-        if(move > 0)
+        if (move > 0 && !facingRight)
         {
-            sr.flipX = false;
+            Flip();
         }
-        if(move < 0)
+
+        else if (move < 0 && facingRight)
         {
-            sr.flipX = true;
+            Flip();
         }
-       
-    
-        if(Input.GetKeyDown(KeyCode.W) && IsGrounded())
+
+
+        if (Input.GetKeyDown(KeyCode.W) && IsGrounded())
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpforce);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             StartCoroutine(resetJumpRoutine());
-            pa.Jump(true);
+            anim.SetBool("jump", true);
         }
 
         //
         //tentar aplicar GetKeyUp com mudança na gravidade para mudar intensidade do pulo
         //
 
-        rb.velocity = new Vector2(move * movespeed, rb.velocity.y);
+        rb.velocity = new Vector2(move * moveSpeed, rb.velocity.y);
 
-        pa.Move(move);
+        anim.SetFloat("speed", Mathf.Abs(move));
     }
+
+    
 
     bool IsGrounded()
     {
@@ -92,7 +101,7 @@ public class Player : MonoBehaviour, IDamageable
         {
             if(resetjump == false)
             {
-                pa.Jump(false);
+                anim.SetBool("jump", false);
                 return true;
             }
             
