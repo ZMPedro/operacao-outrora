@@ -2,64 +2,57 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Enemy : MonoBehaviour
+public abstract class Enemy : Character
 {
 
-    [SerializeField] protected int hp;
-    [SerializeField] protected float speed;
     [SerializeField] protected Transform pointA, pointB;
-    [SerializeField] protected GameObject enemyShotPrefab;
+    
 
     protected Vector3 target;
-    protected Animator anim;
     protected SpriteRenderer sr;
     protected bool hit = false;
-    protected bool dead = false;
 
     protected Player player;
 
-    public virtual void Init()
-    {
-        anim = GetComponentInChildren<Animator>();
-        
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-    }
-
     private void Start()
     {
-        Init(); 
+        Init();
+        facingRight = false;
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     public virtual void Movement()
     {
-        if (target == pointA.position)
-        {
-            sr.flipX = true;
-        }
-        else
-        {
-            sr.flipX = false;
-        }
 
-        if (transform.position == pointA.position)
+        if (hit == false)
         {
-            Debug.Log("PointA");
-            target = pointB.position;
-            anim.SetTrigger("idle");
+            if (target == pointA.position && facingRight)
+            {
+                Flip();
+            }
+            else if (target == pointB.position && !facingRight)
+            {
+                Flip();
+            }
 
 
-        }
-        else if (transform.position == pointB.position)
-        {
-            Debug.Log("PointB");
-            target = pointA.position;
-            anim.SetTrigger("idle");
+            if (transform.position == pointA.position)
+            {
+                Debug.Log("PointA");
+                target = pointB.position;
+                anim.SetTrigger("idle");
 
-        }
 
-        if(hit == false)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+            }
+            else if (transform.position == pointB.position)
+            {
+                Debug.Log("PointB");
+                target = pointA.position;
+                anim.SetTrigger("idle");
+
+            }
+
+            transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
         }
 
         float distance = Vector3.Distance(transform.localPosition, player.transform.localPosition);
@@ -85,7 +78,7 @@ public abstract class Enemy : MonoBehaviour
 
     public void Attack()
     {
-        GameObject shot = Instantiate(enemyShotPrefab, transform.position, Quaternion.identity);
+        GameObject shot = Instantiate(shotPrefab, transform.position, Quaternion.identity);
 
         //if (sr.flipX)
         //{
@@ -95,7 +88,7 @@ public abstract class Enemy : MonoBehaviour
 
     public virtual void Update()
     {
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Idle") && anim.GetBool("combat") == false)
+        if (anim.GetCurrentAnimatorStateInfo(0).IsTag("Idle") && anim.GetBool("combat") == false)
         {
             return;
         }

@@ -4,23 +4,12 @@ using UnityEngine;
 
 public class Player : Character, IDamageable
 {
-
-
     private Rigidbody2D rb;
     
-
     private bool resetjump = false;
     private bool grounded = false;
     
-
     [SerializeField] private float jumpForce;
-    
-    
-    
-    
-
-    public int health { get; set; }
-
     
     void Start()
     {
@@ -29,16 +18,29 @@ public class Player : Character, IDamageable
         facingRight = true;
         jumpForce = 14f;
         moveSpeed = 8f;
+        gunCooldown = 0.35f;
     }
     
     void Update()
     {
         Movement();
-        if (Input.GetKeyDown(KeyCode.L))
+        Shoot();
+    }
+
+    protected override void Shoot()
+    {
+        if (Time.time > nextFireTime)
         {
-            anim.SetTrigger("shoot");
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                anim.SetTrigger("shoot");
+                Instantiate(shotPrefab, firePoint.position, firePoint.rotation);
+                nextFireTime = Time.time + gunCooldown;
+            }
         }
     }
+
+    
 
     //Não está sendo chamado
     private void OnTriggerEnter2D(Collider2D other)
@@ -48,6 +50,10 @@ public class Player : Character, IDamageable
         {
             grounded = true;
             transform.parent = other.gameObject.transform;
+        }
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            anim.SetTrigger("damage");
         }
     }
 
@@ -115,11 +121,6 @@ public class Player : Character, IDamageable
         resetjump = true;
         yield return new WaitForSeconds(0.1f);
         resetjump = false;
-    }
-
-    public void Damage()
-    {
-        Debug.Log("Player::Damage()");
     }
     
 

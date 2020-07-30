@@ -16,15 +16,16 @@ public class Bullet : MonoBehaviour {
 
 	void OnTriggerEnter2D (Collider2D hitInfo)
 	{
-		Enemy enemy = hitInfo.GetComponent<Enemy>();
-		if (enemy != null)
+        
+		Character character = hitInfo.GetComponent<Character>();
+		if (character != null)
 		{
-			//enemy.TakeDamage(damage);
+			character.Damage();
 		}
 
-		Instantiate(impactEffect, transform.position, transform.rotation);
+		//Instantiate(impactEffect, transform.position, transform.rotation);
 
-		Destroy(gameObject);
+		Destroy(this.gameObject);
 	}
 	
 }
